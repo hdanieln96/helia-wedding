@@ -57,6 +57,7 @@ export default function HomeClient({
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
 
         <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl">
+          {/* Stage 1: Logo + Name — visible immediately */}
           <motion.div
             initial={{ rotate: 0 }}
             animate={{ rotate: 360 }}
@@ -81,11 +82,13 @@ export default function HomeClient({
             Helia Wedding
           </motion.h1>
 
+          {/* Stage 2: Tagline — fades in on scroll */}
           <motion.div
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: "100%" }}
-            transition={{ duration: 1.2, delay: 0.7 }}
-            className="mx-auto mt-6 max-w-sm sm:max-w-md"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-120px" }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="mx-auto mt-8 max-w-sm sm:max-w-md"
           >
             <div className="flex items-center justify-center gap-4">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gold" />
@@ -96,20 +99,24 @@ export default function HomeClient({
             </div>
           </motion.div>
 
+          {/* Stage 3: Description — fades in slightly after */}
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-120px" }}
+            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
             className="mt-6 text-white/70 text-lg md:text-xl font-light leading-relaxed max-w-xl mx-auto"
           >
             Capturing your most precious moments with artistry,
             emotion, and timeless elegance.
           </motion.p>
 
+          {/* Stage 4: Buttons — fade in last */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.3 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-120px" }}
+            transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/contact">
