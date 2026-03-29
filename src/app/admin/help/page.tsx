@@ -16,7 +16,7 @@ export default function AdminHelpPage() {
         <Section title="Account Information">
           <InfoRow label="Admin Login" value="/login on your website" />
           <InfoRow label="Email" value="admin@heliawedding.com" />
-          <InfoRow label="Password" value="admin123 (change this!)" />
+          <InfoRow label="Password" value="Contact your developer for password" />
           <Tip>To change your password, contact your developer.</Tip>
         </Section>
 
