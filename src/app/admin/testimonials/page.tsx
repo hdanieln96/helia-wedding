@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,8 @@ interface TestimonialData {
   quote: string;
   event_type: string;
   is_featured: boolean;
+  image_url: string | null;
+  cloudinary_id: string | null;
 }
 
 interface ReviewData {
@@ -36,6 +39,9 @@ export default function AdminTestimonialsPage() {
   const [quote, setQuote] = useState("");
   const [eventType, setEventType] = useState("Wedding");
   const [featured, setFeatured] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [cloudinaryId, setCloudinaryId] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,11 +49,25 @@ export default function AdminTestimonialsPage() {
     fetch("/api/admin/reviews").then((r) => r.json()).then(setReviews);
   }, []);
 
+  async function handleUploadPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("folder", "helia-wedding/testimonials");
+    const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+    const { url, publicId } = await res.json();
+    setImageUrl(url);
+    setCloudinaryId(publicId);
+    setUploadingPhoto(false);
+  }
+
   async function handleSaveTestimonial() {
     if (editing) {
-      await updateTestimonial(editing.id, name, quote, eventType, featured);
+      await updateTestimonial(editing.id, name, quote, eventType, featured, imageUrl || undefined, cloudinaryId || undefined);
     } else {
-      await addTestimonial(name, quote, eventType, featured);
+      await addTestimonial(name, quote, eventType, featured, imageUrl || undefined, cloudinaryId || undefined);
     }
     resetForm();
     const res = await fetch("/api/admin/testimonials");
@@ -77,6 +97,8 @@ export default function AdminTestimonialsPage() {
     setQuote(item.quote);
     setEventType(item.event_type || "Wedding");
     setFeatured(item.is_featured);
+    setImageUrl(item.image_url || "");
+    setCloudinaryId(item.cloudinary_id || "");
   }
 
   function resetForm() {
@@ -85,6 +107,8 @@ export default function AdminTestimonialsPage() {
     setQuote("");
     setEventType("Wedding");
     setFeatured(false);
+    setImageUrl("");
+    setCloudinaryId("");
   }
 
   return (
@@ -149,7 +173,28 @@ export default function AdminTestimonialsPage() {
             <h3 className="text-sm font-medium text-gray-700">
               {editing ? "Edit Testimonial" : "Add Testimonial"}
             </h3>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" className="rounded-none" />
+            <div className="flex items-start gap-4">
+              <div className="shrink-0">
+                {imageUrl ? (
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden">
+                    <Image src={imageUrl} alt="Couple" fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-300 text-xs">
+                    Photo
+                  </div>
+                )}
+                <label className="cursor-pointer block mt-1 text-center">
+                  <input type="file" accept="image/*" onChange={handleUploadPhoto} className="hidden" />
+                  <span className="text-[10px] text-gold hover:text-gold-dark">
+                    {uploadingPhoto ? "..." : imageUrl ? "Change" : "Upload"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex-1 space-y-3">
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name (e.g. Sarah & James)" className="rounded-none" />
+              </div>
+            </div>
             <Textarea value={quote} onChange={(e) => setQuote(e.target.value)} placeholder="Their testimonial..." rows={4} className="rounded-none resize-none" />
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="h-10 px-3 border border-gray-200 text-sm bg-white">
@@ -175,12 +220,19 @@ export default function AdminTestimonialsPage() {
             {testimonials.map((item) => (
               <div key={item.id} className="bg-white border border-gray-200 p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-gray-900 text-sm">{item.client_name}</p>
-                      {item.is_featured && <span className="text-[10px] bg-gold/10 text-gold px-2 py-0.5">Featured</span>}
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                    {item.image_url && (
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
+                        <Image src={item.image_url} alt={item.client_name} fill className="object-cover" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-gray-900 text-sm">{item.client_name}</p>
+                        {item.is_featured && <span className="text-[10px] bg-gold/10 text-gold px-2 py-0.5">Featured</span>}
+                      </div>
+                      <p className="text-sm text-gray-500 mt-1 line-clamp-2 italic">&ldquo;{item.quote}&rdquo;</p>
                     </div>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2 italic">&ldquo;{item.quote}&rdquo;</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <Button size="sm" variant="outline" onClick={() => startEdit(item)} className="rounded-none text-xs">Edit</Button>
