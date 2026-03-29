@@ -31,6 +31,14 @@ export async function deletePortfolioItem(id: number) {
   revalidatePath("/");
 }
 
+export async function updatePortfolioItem(id: number, title: string, categoryId: number | null) {
+  await requireAdmin();
+  await sql`UPDATE portfolio_items SET title = ${title}, category_id = ${categoryId} WHERE id = ${id}`;
+  revalidatePath("/portfolio");
+  revalidatePath("/admin/portfolio");
+  revalidatePath("/");
+}
+
 export async function toggleFeatured(id: number, isFeatured: boolean) {
   await requireAdmin();
   await sql`UPDATE portfolio_items SET is_featured = ${isFeatured} WHERE id = ${id}`;

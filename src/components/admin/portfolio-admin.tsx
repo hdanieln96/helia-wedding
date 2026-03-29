@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { addPortfolioItem, deletePortfolioItem, toggleFeatured, addCategory } from "@/lib/actions/portfolio";
+import { addPortfolioItem, deletePortfolioItem, toggleFeatured, updatePortfolioItem, addCategory } from "@/lib/actions/portfolio";
 
 interface PortfolioAdminProps {
   items: Array<{
@@ -27,6 +27,7 @@ export default function PortfolioAdmin({ items, categories }: PortfolioAdminProp
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [newCatName, setNewCatName] = useState("");
+  const [editingItem, setEditingItem] = useState<{ id: number; title: string; category_id: number | null } | null>(null);
   const router = useRouter();
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -123,11 +124,49 @@ export default function PortfolioAdmin({ items, categories }: PortfolioAdminProp
         </div>
       </div>
 
+      {/* Edit Panel */}
+      {editingItem && (
+        <div className="mt-6 bg-white border border-gray-200 p-4 sm:p-6 max-w-xl space-y-3">
+          <h3 className="text-sm font-medium text-gray-700">Edit Photo</h3>
+          <Input
+            value={editingItem.title}
+            onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+            placeholder="Photo title"
+            className="rounded-none"
+          />
+          <select
+            value={editingItem.category_id || ""}
+            onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value ? Number(e.target.value) : null })}
+            className="h-10 px-3 border border-gray-200 text-sm bg-white w-full"
+          >
+            <option value="">No category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+          <div className="flex gap-2">
+            <Button
+              onClick={async () => {
+                await updatePortfolioItem(editingItem.id, editingItem.title, editingItem.category_id);
+                setEditingItem(null);
+                router.refresh();
+              }}
+              className="bg-charcoal text-white rounded-none text-xs"
+            >
+              Save
+            </Button>
+            <Button variant="outline" onClick={() => setEditingItem(null)} className="rounded-none text-xs">
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Photos Grid */}
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {items.map((item) => (
           <div key={item.id} className="relative group bg-gray-100 aspect-square">
-            <Image src={item.image_url} alt={item.title || ""} fill className="object-cover" />
+            <Image src={item.image_url} alt={item.title || "Photo"} fill className="object-cover" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
               <button
                 onClick={() => toggleFeatured(item.id, !item.is_featured)}
@@ -135,6 +174,13 @@ export default function PortfolioAdmin({ items, categories }: PortfolioAdminProp
                 title="Toggle featured"
               >
                 ★
+              </button>
+              <button
+                onClick={() => setEditingItem({ id: item.id, title: item.title || "", category_id: item.category_id })}
+                className="p-1.5 bg-white text-gray-700 text-xs"
+                title="Edit"
+              >
+                ✎
               </button>
               <button
                 onClick={() => handleDelete(item)}
@@ -149,11 +195,9 @@ export default function PortfolioAdmin({ items, categories }: PortfolioAdminProp
                 ★
               </div>
             )}
-            {item.category_name && (
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] px-2 py-1 truncate">
-                {item.category_name}
-              </div>
-            )}
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] px-2 py-1 truncate">
+              {item.title || "Untitled"}{item.category_name ? ` · ${item.category_name}` : ""}
+            </div>
           </div>
         ))}
         {items.length === 0 && (
