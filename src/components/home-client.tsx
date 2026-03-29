@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import HeroSlideshow from "@/components/hero-slideshow";
 import StatsCounter from "@/components/stats-counter";
@@ -31,18 +31,6 @@ export default function HomeClient({
   showShowreel,
 }: HomeClientProps) {
   const parallaxRef = useRef<HTMLDivElement>(null);
-  const [heroRevealed, setHeroRevealed] = useState(false);
-
-  useEffect(() => {
-    function onScroll() {
-      if (window.scrollY > 5) {
-        setHeroRevealed(true);
-        window.removeEventListener("scroll", onScroll);
-      }
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
   const { scrollYProgress } = useScroll({
     target: parallaxRef,
     offset: ["start end", "end start"],
@@ -95,11 +83,11 @@ export default function HomeClient({
             Helia Wedding
           </motion.h1>
 
-          {/* Stage 2: Everything else — appears on first scroll */}
+          {/* Tagline — delayed */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroRevealed ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 2 }}
             className="mx-auto mt-8 max-w-sm sm:max-w-md"
           >
             <div className="flex items-center justify-center gap-4">
@@ -111,20 +99,22 @@ export default function HomeClient({
             </div>
           </motion.div>
 
+          {/* Description */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroRevealed ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.15 }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 2.3 }}
             className="mt-6 text-white/70 text-lg md:text-xl font-light leading-relaxed max-w-xl mx-auto"
           >
             Capturing your most precious moments with artistry,
             emotion, and timeless elegance.
           </motion.p>
 
+          {/* Buttons */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroRevealed ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 2.6 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/contact">
@@ -143,11 +133,11 @@ export default function HomeClient({
           </motion.div>
         </div>
 
-        {/* Scroll indicator — only before reveal */}
+        {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: heroRevealed ? 0 : 1 }}
-          transition={{ delay: heroRevealed ? 0 : 1.5, duration: 0.5 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 3.5 }}
           className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10 hidden sm:block"
         >
           <motion.div
