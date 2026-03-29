@@ -75,41 +75,47 @@ export default function PortfolioClient({ categories, items }: PortfolioClientPr
               </p>
             </div>
           ) : (
-            <div className="columns-2 md:columns-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <AnimatePresence mode="popLayout">
-                {filteredItems.map((item, i) => (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="mb-3 md:mb-4 break-inside-avoid overflow-hidden group cursor-pointer relative"
-                    onClick={() => openLightbox(i)}
-                  >
-                    <Image
-                      src={item.image_url}
-                      alt={item.title || "Portfolio photo"}
-                      width={item.width || 800}
-                      height={item.height || 600}
-                      className="w-full h-auto transition-transform duration-[1.5s] group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                      {item.title && (
-                        <h3 className="text-white font-[family-name:var(--font-heading)] text-sm tracking-wide">
-                          {item.title}
-                        </h3>
-                      )}
-                      {item.category_name && (
-                        <p className="text-white/60 text-xs tracking-[0.2em] uppercase mt-1">
-                          {item.category_name}
-                        </p>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
+                {filteredItems.map((item, i) => {
+                  // Make every 3rd item span larger on desktop for visual variety
+                  const isLarge = i % 5 === 0 && filteredItems.length > 4;
+                  return (
+                    <motion.div
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.4, delay: Math.min(i * 0.05, 0.5) }}
+                      className={`overflow-hidden group cursor-pointer relative ${
+                        isLarge ? "col-span-2 row-span-2 aspect-[4/3]" : "aspect-[3/4]"
+                      }`}
+                      onClick={() => openLightbox(i)}
+                    >
+                      <Image
+                        src={item.image_url}
+                        alt={item.title || "Portfolio photo"}
+                        fill
+                        className="object-cover transition-transform duration-[1.5s] group-hover:scale-105"
+                        sizes={isLarge ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 50vw, 33vw"}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                        {item.title && (
+                          <h3 className="text-white font-[family-name:var(--font-heading)] text-sm tracking-wide">
+                            {item.title}
+                          </h3>
+                        )}
+                        {item.category_name && (
+                          <p className="text-white/60 text-xs tracking-[0.2em] uppercase mt-1">
+                            {item.category_name}
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
           )}
