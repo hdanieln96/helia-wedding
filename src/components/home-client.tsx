@@ -31,11 +31,24 @@ export default function HomeClient({
   showShowreel,
 }: HomeClientProps) {
   const parallaxRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: parallaxRef,
     offset: ["start end", "end start"],
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+
+  // Hero scroll-based reveal
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroStage2Opacity = useTransform(heroScroll, [0, 0.15, 0.25], [0, 0, 1]);
+  const heroStage2Y = useTransform(heroScroll, [0, 0.15, 0.25], [30, 30, 0]);
+  const heroStage3Opacity = useTransform(heroScroll, [0, 0.2, 0.3], [0, 0, 1]);
+  const heroStage3Y = useTransform(heroScroll, [0, 0.2, 0.3], [20, 20, 0]);
+  const heroStage4Opacity = useTransform(heroScroll, [0, 0.25, 0.35], [0, 0, 1]);
+  const heroStage4Y = useTransform(heroScroll, [0, 0.25, 0.35], [20, 20, 0]);
 
   const featuredTestimonial =
     testimonials.find((t) => t.is_featured) || testimonials[0];
@@ -52,7 +65,8 @@ export default function HomeClient({
     <>
 
       {/* ═══ HERO ═══ */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+      <section ref={heroRef} className="relative h-[200vh]">
+      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-black">
         <HeroSlideshow slides={slides} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
 
@@ -82,12 +96,9 @@ export default function HomeClient({
             Helia Wedding
           </motion.h1>
 
-          {/* Stage 2: Tagline — fades in on scroll */}
+          {/* Stage 2: Tagline — reveals on scroll */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-120px" }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
+            style={{ opacity: heroStage2Opacity, y: heroStage2Y }}
             className="mx-auto mt-8 max-w-sm sm:max-w-md"
           >
             <div className="flex items-center justify-center gap-4">
@@ -99,24 +110,18 @@ export default function HomeClient({
             </div>
           </motion.div>
 
-          {/* Stage 3: Description — fades in slightly after */}
+          {/* Stage 3: Description */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-120px" }}
-            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+            style={{ opacity: heroStage3Opacity, y: heroStage3Y }}
             className="mt-6 text-white/70 text-lg md:text-xl font-light leading-relaxed max-w-xl mx-auto"
           >
             Capturing your most precious moments with artistry,
             emotion, and timeless elegance.
           </motion.p>
 
-          {/* Stage 4: Buttons — fade in last */}
+          {/* Stage 4: Buttons */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-120px" }}
-            transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+            style={{ opacity: heroStage4Opacity, y: heroStage4Y }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/contact">
@@ -153,6 +158,7 @@ export default function HomeClient({
             <div className="w-px h-8 bg-gradient-to-b from-white/40 to-transparent" />
           </motion.div>
         </motion.div>
+      </div>
       </section>
 
       {/* ═══ OUR STORY ═══ */}
