@@ -31,24 +31,36 @@ export default function HomeClient({
   showShowreel,
 }: HomeClientProps) {
   const parallaxRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
+  const [heroRevealed, setHeroRevealed] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      if (window.scrollY > 5) {
+        setHeroRevealed(true);
+        window.removeEventListener("scroll", onScroll);
+      }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const [heroRevealed, setHeroRevealed] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      if (window.scrollY > 10) {
+        setHeroRevealed(true);
+        window.removeEventListener("scroll", onScroll);
+      }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const { scrollYProgress } = useScroll({
     target: parallaxRef,
     offset: ["start end", "end start"],
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
-  // Hero scroll-based reveal
-  const { scrollYProgress: heroScroll } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroStage2Opacity = useTransform(heroScroll, [0, 0.15, 0.25], [0, 0, 1]);
-  const heroStage2Y = useTransform(heroScroll, [0, 0.15, 0.25], [30, 30, 0]);
-  const heroStage3Opacity = useTransform(heroScroll, [0, 0.2, 0.3], [0, 0, 1]);
-  const heroStage3Y = useTransform(heroScroll, [0, 0.2, 0.3], [20, 20, 0]);
-  const heroStage4Opacity = useTransform(heroScroll, [0, 0.25, 0.35], [0, 0, 1]);
-  const heroStage4Y = useTransform(heroScroll, [0, 0.25, 0.35], [20, 20, 0]);
 
   const featuredTestimonial =
     testimonials.find((t) => t.is_featured) || testimonials[0];
@@ -65,13 +77,12 @@ export default function HomeClient({
     <>
 
       {/* ═══ HERO ═══ */}
-      <section ref={heroRef} className="relative h-[200vh]">
-      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-black">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
         <HeroSlideshow slides={slides} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
 
         <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl">
-          {/* Stage 1: Logo + Name — visible immediately */}
+          {/* Stage 1: Logo + Name — immediate */}
           <motion.div
             initial={{ rotate: 0 }}
             animate={{ rotate: 360 }}
@@ -88,7 +99,7 @@ export default function HomeClient({
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
             className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white tracking-[0.06em] sm:tracking-[0.08em] font-light"
@@ -96,9 +107,11 @@ export default function HomeClient({
             Helia Wedding
           </motion.h1>
 
-          {/* Stage 2: Tagline — reveals on scroll */}
+          {/* Stage 2: Everything else — appears on first scroll */}
           <motion.div
-            style={{ opacity: heroStage2Opacity, y: heroStage2Y }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={heroRevealed ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
             className="mx-auto mt-8 max-w-sm sm:max-w-md"
           >
             <div className="flex items-center justify-center gap-4">
@@ -110,18 +123,20 @@ export default function HomeClient({
             </div>
           </motion.div>
 
-          {/* Stage 3: Description */}
           <motion.p
-            style={{ opacity: heroStage3Opacity, y: heroStage3Y }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={heroRevealed ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.15 }}
             className="mt-6 text-white/70 text-lg md:text-xl font-light leading-relaxed max-w-xl mx-auto"
           >
             Capturing your most precious moments with artistry,
             emotion, and timeless elegance.
           </motion.p>
 
-          {/* Stage 4: Buttons */}
           <motion.div
-            style={{ opacity: heroStage4Opacity, y: heroStage4Y }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={heroRevealed ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.3 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/contact">
@@ -140,11 +155,11 @@ export default function HomeClient({
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator — only before reveal */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
+          animate={{ opacity: heroRevealed ? 0 : 1 }}
+          transition={{ delay: heroRevealed ? 0 : 1.5, duration: 0.5 }}
           className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10 hidden sm:block"
         >
           <motion.div
@@ -158,7 +173,6 @@ export default function HomeClient({
             <div className="w-px h-8 bg-gradient-to-b from-white/40 to-transparent" />
           </motion.div>
         </motion.div>
-      </div>
       </section>
 
       {/* ═══ OUR STORY ═══ */}
