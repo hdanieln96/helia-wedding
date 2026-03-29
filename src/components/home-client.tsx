@@ -85,7 +85,7 @@ export default function HomeClient({
             initial={{ opacity: 0, width: 0 }}
             animate={{ opacity: 1, width: "100%" }}
             transition={{ duration: 1.2, delay: 0.7 }}
-            className="mx-auto mt-6 max-w-xs overflow-hidden"
+            className="mx-auto mt-6 max-w-sm sm:max-w-md"
           >
             <div className="flex items-center justify-center gap-4">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gold" />
