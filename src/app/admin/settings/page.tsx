@@ -67,6 +67,7 @@ export default function AdminSettingsPage() {
   ];
 
   const showShowreel = settings["show_showreel"] === "true";
+  const showStarRating = settings["show_star_rating"] !== "false";
 
   if (loading) return <p className="text-gray-500">Loading settings...</p>;
 
@@ -110,6 +111,17 @@ export default function AdminSettingsPage() {
           <div>
             <span className="text-sm text-gray-700">Show Showreel Section</span>
             <p className="text-xs text-gray-400">Display the video showreel on the home page</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
+          <Switch
+            checked={showStarRating}
+            onCheckedChange={(v) => setSettings({ ...settings, show_star_rating: v ? "true" : "false" })}
+          />
+          <div>
+            <span className="text-sm text-gray-700">Show Star Ratings</span>
+            <p className="text-xs text-gray-400">Display star ratings on reviews (turn off for text-only reviews)</p>
           </div>
         </div>
 

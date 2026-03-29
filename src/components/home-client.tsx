@@ -9,6 +9,7 @@ import HeroSlideshow from "@/components/hero-slideshow";
 import StatsCounter from "@/components/stats-counter";
 import SectionHeading from "@/components/section-heading";
 import AnimatedLink from "@/components/animated-link";
+import StarRating from "@/components/star-rating";
 import type { HeroSlide, SiteStat, Testimonial, PortfolioItem } from "@/types";
 
 interface HomeClientProps {
@@ -21,6 +22,8 @@ interface HomeClientProps {
   showShowreel: boolean;
   featuredPhotos: PortfolioItem[];
   siteImages: Record<string, string>;
+  reviews: Array<{ id: number; client_name: string; rating: number; review_text: string; event_type: string | null; created_at: string }>;
+  showStars: boolean;
 }
 
 export default function HomeClient({
@@ -33,6 +36,8 @@ export default function HomeClient({
   showShowreel,
   featuredPhotos,
   siteImages,
+  reviews,
+  showStars,
 }: HomeClientProps) {
   const parallaxRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -343,35 +348,86 @@ export default function HomeClient({
         </div>
       </section>
 
-      {/* ═══ TESTIMONIAL ═══ */}
-      {featuredTestimonial && (
+      {/* ═══ REVIEWS ═══ */}
+      {(reviews.length > 0 || featuredTestimonial) && (
         <section className="relative py-32 md:py-40 overflow-hidden">
           <div className="absolute inset-0">
             <Image src={siteImages.image_testimonial_bg || "/hero-placeholder.jpg"} alt="Background" fill className="object-cover" sizes="100vw" />
             <div className="absolute inset-0 bg-black/70" />
           </div>
-          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <div className="relative z-10 max-w-5xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 1 }}
+              className="text-center mb-12"
             >
               <span className="text-gold text-xs tracking-[0.4em] uppercase">Kind Words</span>
-              <svg className="mx-auto mt-8 w-10 h-10 text-gold/30" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983z" />
-              </svg>
-              <blockquote className="mt-8 font-[family-name:var(--font-heading)] text-xl sm:text-2xl md:text-4xl font-light text-white leading-relaxed italic">
-                &ldquo;{featuredTestimonial.quote}&rdquo;
-              </blockquote>
-              <div className="mt-10 flex items-center justify-center gap-4">
-                <div className="h-px w-8 bg-gold/50" />
-                <p className="text-gold text-sm tracking-[0.3em] uppercase">
-                  {featuredTestimonial.client_name}
-                </p>
-                <div className="h-px w-8 bg-gold/50" />
-              </div>
+              <h2 className="mt-4 font-[family-name:var(--font-heading)] text-3xl md:text-5xl font-light text-white tracking-wide">
+                What Our Clients Say
+              </h2>
+              <div className="mt-6 h-px w-16 bg-gold mx-auto" />
             </motion.div>
+
+            {reviews.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {reviews.slice(0, 3).map((review, i) => (
+                    <motion.div
+                      key={review.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: i * 0.15 }}
+                      className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 sm:p-8"
+                    >
+                      {showStars && <StarRating rating={review.rating} size="sm" showRating={false} />}
+                      <p className="mt-4 text-white/80 text-sm leading-relaxed italic line-clamp-4">
+                        &ldquo;{review.review_text}&rdquo;
+                      </p>
+                      <div className="mt-4 flex items-center gap-2">
+                        <p className="text-gold text-sm tracking-wide">{review.client_name}</p>
+                        {review.event_type && (
+                          <span className="text-white/30 text-xs">· {review.event_type}</span>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                  className="text-center mt-10"
+                >
+                  <AnimatedLink href="/reviews" light>
+                    See All Reviews
+                  </AnimatedLink>
+                </motion.div>
+              </>
+            ) : featuredTestimonial ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="text-center"
+              >
+                <svg className="mx-auto w-10 h-10 text-gold/30" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983z" />
+                </svg>
+                <blockquote className="mt-8 font-[family-name:var(--font-heading)] text-xl sm:text-2xl md:text-4xl font-light text-white leading-relaxed italic">
+                  &ldquo;{featuredTestimonial.quote}&rdquo;
+                </blockquote>
+                <div className="mt-8 flex items-center justify-center gap-4">
+                  <div className="h-px w-8 bg-gold/50" />
+                  <p className="text-gold text-sm tracking-[0.3em] uppercase">{featuredTestimonial.client_name}</p>
+                  <div className="h-px w-8 bg-gold/50" />
+                </div>
+              </motion.div>
+            ) : null}
           </div>
         </section>
       )}

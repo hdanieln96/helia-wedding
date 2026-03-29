@@ -170,6 +170,14 @@ const tables = [
     sort_order    INTEGER DEFAULT 0,
     is_active     BOOLEAN DEFAULT true
   )`,
+  `CREATE TABLE IF NOT EXISTS reviews (
+    id            SERIAL PRIMARY KEY,
+    client_name   VARCHAR(255) NOT NULL,
+    rating        INTEGER CHECK (rating >= 1 AND rating <= 5),
+    review_text   TEXT NOT NULL,
+    event_type    VARCHAR(100),
+    created_at    TIMESTAMP DEFAULT NOW()
+  )`,
   `CREATE TABLE IF NOT EXISTS social_links (
     id         SERIAL PRIMARY KEY,
     platform   VARCHAR(50) NOT NULL,

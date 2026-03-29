@@ -11,7 +11,7 @@ const navItems = [
   { href: "/admin/portfolio", label: "Portfolio", icon: "camera" },
   { href: "/admin/videos", label: "Videos", icon: "film" },
   { href: "/admin/services", label: "Services", icon: "package" },
-  { href: "/admin/testimonials", label: "Testimonials", icon: "quote" },
+  { href: "/admin/testimonials", label: "Reviews", icon: "quote" },
   { href: "/admin/about", label: "About", icon: "user" },
   { href: "/admin/faq", label: "FAQ", icon: "help" },
   { href: "/admin/contact", label: "Contact Page", icon: "inbox" },
