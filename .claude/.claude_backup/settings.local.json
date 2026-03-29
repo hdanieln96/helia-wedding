@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm -v)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --turbopack)",
+      "Read(//Users/daniel/Coding/**)",
+      "Bash(npx create-next-app@latest helia-wedding --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --turbopack)",
+      "Bash(rm -rf helia-wedding)",
+      "Bash(yes)",
+      "Bash(cp /Users/daniel/Coding/HeliaWedding/logo.JPG /tmp/logo_backup.JPG)",
+      "Bash(cp /Users/daniel/Coding/HeliaWedding/CLAUDE.md /tmp/CLAUDE_backup.md)",
+      "Bash(cp -r /Users/daniel/Coding/HeliaWedding/.claude /tmp/.claude_backup)",
+      "Bash(rsync -av /Users/daniel/Coding/helia-wedding/ /Users/daniel/Coding/HeliaWedding/ --exclude=.git)"
+    ]
+  }
+}
