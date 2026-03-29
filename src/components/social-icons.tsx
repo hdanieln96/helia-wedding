@@ -96,6 +96,12 @@ export default function SocialLinksDisplay({ links, iconClassName = "w-5 h-5", c
 
   if (activeLinks.length === 0) return null;
 
+  function ensureUrl(url: string): string {
+    if (!url) return "#";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `https://${url}`;
+  }
+
   return (
     <div className={`flex gap-4 ${className}`}>
       {activeLinks.map((link) => {
@@ -104,7 +110,7 @@ export default function SocialLinksDisplay({ links, iconClassName = "w-5 h-5", c
         return (
           <a
             key={link.id}
-            href={link.url}
+            href={ensureUrl(link.url)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-current hover:text-gold transition-colors"
