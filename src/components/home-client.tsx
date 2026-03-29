@@ -376,24 +376,30 @@ export default function HomeClient({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: i * 0.15 }}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 sm:p-8"
+                  className="relative overflow-hidden aspect-[3/4]"
                 >
-                  {t.image_url && (
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden mb-4">
-                      <Image src={t.image_url} alt={t.client_name} fill className="object-cover" sizes="56px" />
-                    </div>
+                  {/* Background photo */}
+                  {t.image_url ? (
+                    <Image src={t.image_url} alt={t.client_name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+                  ) : (
+                    <div className="absolute inset-0 bg-charcoal" />
                   )}
-                  <svg className="w-6 h-6 text-gold/30 mb-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983z" />
-                  </svg>
-                  <p className="text-white/80 text-sm leading-relaxed italic line-clamp-4">
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
-                  <div className="mt-4 flex items-center gap-2">
-                    <p className="text-gold text-sm tracking-wide">{t.client_name}</p>
-                    {t.event_type && (
-                      <span className="text-white/30 text-xs">· {t.event_type}</span>
-                    )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+                  {/* Content overlay at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                    <svg className="w-6 h-6 text-gold/50 mb-3" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983z" />
+                    </svg>
+                    <p className="text-white text-sm leading-relaxed italic line-clamp-3">
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                    <div className="mt-4 flex items-center gap-2">
+                      <p className="text-gold text-sm tracking-wide">{t.client_name}</p>
+                      {t.event_type && (
+                        <span className="text-white/40 text-xs">· {t.event_type}</span>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}
