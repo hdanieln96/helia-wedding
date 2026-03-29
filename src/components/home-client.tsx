@@ -43,18 +43,6 @@ export default function HomeClient({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const [heroRevealed, setHeroRevealed] = useState(false);
-
-  useEffect(() => {
-    function onScroll() {
-      if (window.scrollY > 10) {
-        setHeroRevealed(true);
-        window.removeEventListener("scroll", onScroll);
-      }
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
   const { scrollYProgress } = useScroll({
     target: parallaxRef,
     offset: ["start end", "end start"],
