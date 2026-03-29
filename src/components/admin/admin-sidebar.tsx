@@ -17,6 +17,7 @@ const navItems = [
   { href: "/admin/contact", label: "Contact Page", icon: "inbox" },
   { href: "/admin/submissions", label: "Submissions", icon: "inbox" },
   { href: "/admin/settings", label: "Settings", icon: "settings" },
+  { href: "/admin/help", label: "Help & Info", icon: "help" },
 ];
 
 const icons: Record<string, React.ReactNode> = {
