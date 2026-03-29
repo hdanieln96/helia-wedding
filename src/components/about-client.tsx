@@ -101,6 +101,7 @@ export default function AboutClient({ sections, team, stats, philosophy }: About
                       alt={member.name}
                       fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                   <h3 className="font-[family-name:var(--font-heading)] text-xl tracking-wide text-charcoal">

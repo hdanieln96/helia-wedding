@@ -81,6 +81,7 @@ export default function HeroSlideshow({ slides }: HeroSlideshowProps) {
             className="object-cover"
             priority={current === 0}
             sizes="100vw"
+            quality={85}
           />
         </motion.div>
       </AnimatePresence>

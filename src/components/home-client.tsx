@@ -179,10 +179,15 @@ export default function HomeClient({
             <span className="text-gold text-xs tracking-[0.4em] uppercase">
               Our Story
             </span>
-            <h2
-              className="mt-4 font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-light text-charcoal leading-tight"
-              dangerouslySetInnerHTML={{ __html: storyTitle }}
-            />
+            <h2 className="mt-4 font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-light text-charcoal leading-tight">
+              {storyTitle.includes("<em>")
+                ? <>
+                    {storyTitle.split("<em>")[0]}
+                    <em>{storyTitle.split("<em>")[1]?.replace("</em>", "")}</em>
+                  </>
+                : storyTitle
+              }
+            </h2>
             <div className="mt-6 h-px w-16 bg-gold" />
             {storyBody.split("\n\n").map((paragraph, i) => (
               <p key={i} className="mt-6 text-muted-foreground leading-[1.9] text-base">
@@ -446,6 +451,7 @@ function PortfolioPreviewItem({
         alt={title}
         fill
         className="object-cover transition-transform duration-[1.5s] group-hover:scale-105"
+        sizes="(max-width: 768px) 100vw, 50vw"
       />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-700" />
       <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">

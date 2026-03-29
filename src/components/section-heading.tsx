@@ -46,8 +46,9 @@ export default function SectionHeading({
           "mt-4 font-[family-name:var(--font-heading)] text-4xl md:text-5xl font-light tracking-wide",
           light ? "text-white" : "text-charcoal"
         )}
-        dangerouslySetInnerHTML={{ __html: title }}
-      />
+      >
+        {title}
+      </h2>
       <div
         className={cn(
           "mt-6 h-px w-16 bg-gold",

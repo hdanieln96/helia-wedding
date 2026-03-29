@@ -3,6 +3,22 @@
 import { revalidatePath } from "next/cache";
 import sql from "@/lib/db";
 import { sendContactNotification } from "@/lib/email";
+import { requireAdmin } from "@/lib/auth-check";
+
+// ── Simple rate limiting ──
+const submitTimes: Map<string, number[]> = new Map();
+const RATE_LIMIT = 3; // max submissions
+const RATE_WINDOW = 60 * 60 * 1000; // per hour
+
+function checkRateLimit(email: string): boolean {
+  const now = Date.now();
+  const times = submitTimes.get(email) || [];
+  const recent = times.filter((t) => now - t < RATE_WINDOW);
+  if (recent.length >= RATE_LIMIT) return false;
+  recent.push(now);
+  submitTimes.set(email, recent);
+  return true;
+}
 
 // ── Contact Form Submission (public) ──
 
@@ -19,6 +35,10 @@ export async function submitContactForm(formData: FormData) {
 
   if (!fullName || !email) {
     return { success: false, error: "Name and email are required." };
+  }
+
+  if (!checkRateLimit(email)) {
+    return { success: false, error: "Too many submissions. Please try again later." };
   }
 
   try {
@@ -65,6 +85,7 @@ export async function addContactField(
   isRequired: boolean,
   options: string
 ) {
+  await requireAdmin();
   const maxOrder = await sql`SELECT COALESCE(MAX(sort_order), -1) + 1 as next FROM contact_fields`;
   await sql`
     INSERT INTO contact_fields (label, field_type, placeholder, is_required, options, sort_order)
@@ -82,6 +103,7 @@ export async function updateContactField(
   isRequired: boolean,
   options: string
 ) {
+  await requireAdmin();
   await sql`
     UPDATE contact_fields
     SET label = ${label}, field_type = ${fieldType}, placeholder = ${placeholder},
@@ -93,22 +115,26 @@ export async function updateContactField(
 }
 
 export async function deleteContactField(id: number) {
+  await requireAdmin();
   await sql`DELETE FROM contact_fields WHERE id = ${id}`;
   revalidatePath("/contact");
   revalidatePath("/admin/contact");
 }
 
 export async function toggleContactField(id: number, isActive: boolean) {
+  await requireAdmin();
   await sql`UPDATE contact_fields SET is_active = ${isActive} WHERE id = ${id}`;
   revalidatePath("/contact");
 }
 
 export async function toggleContactFieldRequired(id: number, isRequired: boolean) {
+  await requireAdmin();
   await sql`UPDATE contact_fields SET is_required = ${isRequired} WHERE id = ${id}`;
   revalidatePath("/contact");
 }
 
 export async function updateContactPageContent(title: string, subtitle: string) {
+  await requireAdmin();
   await sql`
     UPDATE site_content SET title = ${title}, body = ${subtitle}
     WHERE section = 'contact_subtitle'

@@ -11,13 +11,15 @@ const tables = [
     created_at    TIMESTAMP DEFAULT NOW()
   )`,
   `CREATE TABLE IF NOT EXISTS hero_slides (
-    id            SERIAL PRIMARY KEY,
-    image_url     TEXT NOT NULL,
-    cloudinary_id TEXT,
-    alt_text      VARCHAR(255),
-    sort_order    INTEGER DEFAULT 0,
-    is_active     BOOLEAN DEFAULT true,
-    created_at    TIMESTAMP DEFAULT NOW()
+    id                   SERIAL PRIMARY KEY,
+    image_url            TEXT NOT NULL,
+    cloudinary_id        TEXT,
+    mobile_image_url     TEXT,
+    mobile_cloudinary_id TEXT,
+    alt_text             VARCHAR(255),
+    sort_order           INTEGER DEFAULT 0,
+    is_active            BOOLEAN DEFAULT true,
+    created_at           TIMESTAMP DEFAULT NOW()
   )`,
   `CREATE TABLE IF NOT EXISTS site_settings (
     id    SERIAL PRIMARY KEY,
@@ -155,7 +157,25 @@ const tables = [
     message          TEXT,
     is_read          BOOLEAN DEFAULT false,
     is_archived      BOOLEAN DEFAULT false,
-    created_at       TIMESTAMP DEFAULT NOW()
+    created_at       TIMESTAMP DEFAULT NOW(),
+    form_data        JSONB
+  )`,
+  `CREATE TABLE IF NOT EXISTS contact_fields (
+    id            SERIAL PRIMARY KEY,
+    label         VARCHAR(255) NOT NULL,
+    field_type    VARCHAR(50) NOT NULL DEFAULT 'text',
+    placeholder   VARCHAR(255),
+    is_required   BOOLEAN DEFAULT false,
+    options       TEXT,
+    sort_order    INTEGER DEFAULT 0,
+    is_active     BOOLEAN DEFAULT true
+  )`,
+  `CREATE TABLE IF NOT EXISTS social_links (
+    id         SERIAL PRIMARY KEY,
+    platform   VARCHAR(50) NOT NULL,
+    url        TEXT NOT NULL DEFAULT '',
+    is_active  BOOLEAN DEFAULT true,
+    sort_order INTEGER DEFAULT 0
   )`,
 ];
 
