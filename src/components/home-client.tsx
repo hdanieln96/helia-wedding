@@ -9,7 +9,7 @@ import HeroSlideshow from "@/components/hero-slideshow";
 import StatsCounter from "@/components/stats-counter";
 import SectionHeading from "@/components/section-heading";
 import AnimatedLink from "@/components/animated-link";
-import type { HeroSlide, SiteStat, Testimonial } from "@/types";
+import type { HeroSlide, SiteStat, Testimonial, PortfolioItem } from "@/types";
 
 interface HomeClientProps {
   heroSlides: HeroSlide[];
@@ -19,6 +19,8 @@ interface HomeClientProps {
   storyBody: string;
   showreelUrl: string;
   showShowreel: boolean;
+  featuredPhotos: PortfolioItem[];
+  siteImages: Record<string, string>;
 }
 
 export default function HomeClient({
@@ -29,6 +31,8 @@ export default function HomeClient({
   storyBody,
   showreelUrl,
   showShowreel,
+  featuredPhotos,
+  siteImages,
 }: HomeClientProps) {
   const parallaxRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -165,7 +169,7 @@ export default function HomeClient({
           >
             <motion.div style={{ y: parallaxY }} className="absolute inset-[-20%]">
               <Image
-                src="/hero-placeholder.jpg"
+                src={siteImages.image_story || "/hero-placeholder.jpg"}
                 alt="Our story"
                 fill
                 className="object-cover"
@@ -282,16 +286,60 @@ export default function HomeClient({
             <AnimatedLink href="/portfolio">View All</AnimatedLink>
           </motion.div>
 
-          <div className="grid grid-cols-12 gap-3 md:gap-4">
-            <PortfolioPreviewItem className="col-span-12 md:col-span-7 aspect-[4/3]" label="Wedding" title="A Beautiful Celebration" delay={0} />
-            <div className="col-span-12 md:col-span-5 grid grid-rows-2 gap-3 md:gap-4">
-              <PortfolioPreviewItem className="" label="Pre-Wedding" title="Love in the Golden Hour" delay={0.15} />
-              <PortfolioPreviewItem className="" label="Event" title="Moments of Joy" delay={0.3} />
+          {featuredPhotos.length > 0 ? (
+            <div className="grid grid-cols-12 gap-3 md:gap-4">
+              {featuredPhotos[0] && (
+                <PortfolioPreviewItem
+                  className="col-span-12 md:col-span-7 aspect-[4/3]"
+                  label={featuredPhotos[0].category_name || ""}
+                  title={featuredPhotos[0].title || ""}
+                  imageUrl={featuredPhotos[0].image_url}
+                  delay={0}
+                />
+              )}
+              <div className="col-span-12 md:col-span-5 grid grid-rows-2 gap-3 md:gap-4">
+                {featuredPhotos[1] && (
+                  <PortfolioPreviewItem
+                    className=""
+                    label={featuredPhotos[1].category_name || ""}
+                    title={featuredPhotos[1].title || ""}
+                    imageUrl={featuredPhotos[1].image_url}
+                    delay={0.15}
+                  />
+                )}
+                {featuredPhotos[2] && (
+                  <PortfolioPreviewItem
+                    className=""
+                    label={featuredPhotos[2].category_name || ""}
+                    title={featuredPhotos[2].title || ""}
+                    imageUrl={featuredPhotos[2].image_url}
+                    delay={0.3}
+                  />
+                )}
+              </div>
+              {featuredPhotos.slice(3, 6).map((photo, i) => (
+                <PortfolioPreviewItem
+                  key={photo.id}
+                  className="col-span-4 aspect-square"
+                  label=""
+                  title={photo.title || ""}
+                  imageUrl={photo.image_url}
+                  delay={0.1 * i}
+                />
+              ))}
             </div>
-            {["Ceremony", "Reception", "Details"].map((title, i) => (
-              <PortfolioPreviewItem key={title} className="col-span-4 aspect-square" label="" title={title} delay={0.1 * i} />
-            ))}
-          </div>
+          ) : (
+            <div className="grid grid-cols-12 gap-3 md:gap-4">
+              <PortfolioPreviewItem className="col-span-12 md:col-span-7 aspect-[4/3]" label="Wedding" title="A Beautiful Celebration" delay={0} />
+              <div className="col-span-12 md:col-span-5 grid grid-rows-2 gap-3 md:gap-4">
+                <PortfolioPreviewItem className="" label="Pre-Wedding" title="Love in the Golden Hour" delay={0.15} />
+                <PortfolioPreviewItem className="" label="Event" title="Moments of Joy" delay={0.3} />
+              </div>
+              {["Ceremony", "Reception", "Details"].map((title, i) => (
+                <PortfolioPreviewItem key={title} className="col-span-4 aspect-square" label="" title={title} delay={0.1 * i} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -299,7 +347,7 @@ export default function HomeClient({
       {featuredTestimonial && (
         <section className="relative py-32 md:py-40 overflow-hidden">
           <div className="absolute inset-0">
-            <Image src="/hero-placeholder.jpg" alt="Background" fill className="object-cover" sizes="100vw" />
+            <Image src={siteImages.image_testimonial_bg || "/hero-placeholder.jpg"} alt="Background" fill className="object-cover" sizes="100vw" />
             <div className="absolute inset-0 bg-black/70" />
           </div>
           <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
@@ -329,7 +377,7 @@ export default function HomeClient({
       )}
 
       {/* ═══ VIDEO SHOWREEL ═══ */}
-      {showShowreel && <ShowreelSection url={showreelUrl} />}
+      {showShowreel && <ShowreelSection url={showreelUrl} thumbnailUrl={siteImages.image_showreel_thumb || "/hero-placeholder.jpg"} />}
 
       {/* ═══ CTA ═══ */}
       <section className="py-32 md:py-40 bg-warm-white">
@@ -385,7 +433,7 @@ function getEmbedUrl(url: string): { type: "youtube" | "vimeo" | "gdrive" | "dir
   return { type: "direct", embedUrl: url };
 }
 
-function ShowreelSection({ url }: { url: string }) {
+function ShowreelSection({ url, thumbnailUrl }: { url: string; thumbnailUrl: string }) {
   const [playing, setPlaying] = useState(false);
   const embed = getEmbedUrl(url);
 
@@ -415,7 +463,7 @@ function ShowreelSection({ url }: { url: string }) {
             )
           ) : (
             <div className="absolute inset-0 cursor-pointer group" onClick={() => setPlaying(true)}>
-              <Image src="/hero-placeholder.jpg" alt="Video showreel" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 1024px" />
+              <Image src={thumbnailUrl} alt="Video showreel" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 1024px" />
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-500" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/80 flex items-center justify-center group-hover:scale-110 group-hover:border-gold transition-all duration-500">
@@ -437,11 +485,13 @@ function PortfolioPreviewItem({
   label,
   title,
   delay,
+  imageUrl = "/hero-placeholder.jpg",
 }: {
   className: string;
   label: string;
   title: string;
   delay: number;
+  imageUrl?: string;
 }) {
   return (
     <motion.div
@@ -452,8 +502,8 @@ function PortfolioPreviewItem({
       className={`relative overflow-hidden group cursor-pointer bg-charcoal/5 ${className}`}
     >
       <Image
-        src="/hero-placeholder.jpg"
-        alt={title}
+        src={imageUrl}
+        alt={title || "Portfolio photo"}
         fill
         className="object-cover transition-transform duration-[1.5s] group-hover:scale-105"
         sizes="(max-width: 768px) 100vw, 50vw"

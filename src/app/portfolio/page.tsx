@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function PortfolioPage() {
-  const [categories, items] = await Promise.all([
+  const [categories, items, headerImg] = await Promise.all([
     sql`SELECT * FROM portfolio_categories ORDER BY sort_order`,
     sql`
       SELECT pi.*, pc.name as category_name, pc.slug as category_slug
@@ -19,6 +19,7 @@ export default async function PortfolioPage() {
       LEFT JOIN portfolio_categories pc ON pi.category_id = pc.id
       ORDER BY pi.sort_order
     `,
+    sql`SELECT value FROM site_settings WHERE key = 'image_header_portfolio'`,
   ]);
 
   return (
@@ -27,6 +28,7 @@ export default async function PortfolioPage() {
       <PageHeader
         title="Our Work"
         subtitle="A curated collection of moments we've had the honor of capturing."
+        imageUrl={headerImg[0]?.value || undefined}
       />
       <PortfolioClient
         categories={categories as PortfolioCategory[]}

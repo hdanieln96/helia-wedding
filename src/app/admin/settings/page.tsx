@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +24,7 @@ export default function AdminSettingsPage() {
   const [saved, setSaved] = useState(false);
   const [savingSocial, setSavingSocial] = useState(false);
   const [savedSocial, setSavedSocial] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -172,6 +174,66 @@ export default function AdminSettingsPage() {
           {savedSocial && <span className="text-sm text-green-600">Saved!</span>}
         </div>
       </div>
+
+      {/* Site Images */}
+      <div className="mt-8 bg-white border border-gray-200 p-4 sm:p-6 max-w-2xl">
+        <h3 className="text-sm font-medium text-gray-700 mb-2">Site Images</h3>
+        <p className="text-xs text-gray-400 mb-6">Upload images used across the site. These replace the default placeholders.</p>
+
+        <div className="space-y-6">
+          {siteImages.map((img) => (
+            <div key={img.key} className="flex items-start gap-4">
+              <div className="relative w-24 h-16 sm:w-32 sm:h-20 bg-gray-100 shrink-0 overflow-hidden">
+                {settings[img.key] ? (
+                  <Image src={settings[img.key]} alt={img.label} fill className="object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
+                    No image
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-700">{img.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{img.description}</p>
+                <label className="cursor-pointer inline-block mt-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploadingImage(img.key);
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      formData.append("folder", "helia-wedding/site");
+                      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+                      const { url } = await res.json();
+                      const updated = { ...settings, [img.key]: url };
+                      setSettings(updated);
+                      await updateSettings({ [img.key]: url });
+                      setUploadingImage(null);
+                    }}
+                  />
+                  <span className={`text-xs px-3 py-1.5 border border-gray-200 hover:border-gold/50 transition-colors ${uploadingImage === img.key ? "opacity-50" : "cursor-pointer"}`}>
+                    {uploadingImage === img.key ? "Uploading..." : settings[img.key] ? "Replace" : "Upload"}
+                  </span>
+                </label>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
+
+const siteImages = [
+  { key: "image_story", label: "Home — Story Section", description: "The parallax photo next to 'Our Story' text" },
+  { key: "image_testimonial_bg", label: "Home — Testimonial Background", description: "Dark cinematic photo behind the client quote" },
+  { key: "image_showreel_thumb", label: "Home — Showreel Thumbnail", description: "Preview image before video plays" },
+  { key: "image_contact", label: "Contact Page — Photo", description: "Image next to the contact form" },
+  { key: "image_header_portfolio", label: "Portfolio Page — Header", description: "Full-width background at the top" },
+  { key: "image_header_services", label: "Services Page — Header", description: "Full-width background at the top" },
+  { key: "image_header_about", label: "About Page — Header", description: "Full-width background at the top" },
+];

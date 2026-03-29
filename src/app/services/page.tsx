@@ -11,13 +11,14 @@ export const metadata = {
 };
 
 export default async function ServicesPage() {
-  const [packages, features, addons, steps, faqs, philosophy] = await Promise.all([
+  const [packages, features, addons, steps, faqs, philosophy, headerImg] = await Promise.all([
     sql`SELECT * FROM service_packages WHERE is_active = true ORDER BY sort_order`,
     sql`SELECT * FROM package_features ORDER BY sort_order`,
     sql`SELECT * FROM service_addons WHERE is_active = true ORDER BY sort_order`,
     sql`SELECT * FROM booking_steps ORDER BY sort_order`,
     sql`SELECT * FROM faqs WHERE is_active = true ORDER BY sort_order`,
     sql`SELECT * FROM site_content WHERE section = 'services_philosophy'`,
+    sql`SELECT value FROM site_settings WHERE key = 'image_header_services'`,
   ]);
 
   const packagesWithFeatures = (packages as ServicePackage[]).map((pkg) => ({
@@ -31,6 +32,7 @@ export default async function ServicesPage() {
       <PageHeader
         title="Our Services"
         subtitle="Discover our comprehensive packages for your special day."
+        imageUrl={headerImg[0]?.value || undefined}
       />
       <ServicesClient
         packages={packagesWithFeatures}

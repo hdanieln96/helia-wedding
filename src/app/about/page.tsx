@@ -11,17 +11,18 @@ export const metadata = {
 };
 
 export default async function AboutPage() {
-  const [sections, team, stats, philosophy] = await Promise.all([
+  const [sections, team, stats, philosophy, headerImg] = await Promise.all([
     sql`SELECT * FROM about_sections ORDER BY sort_order`,
     sql`SELECT * FROM team_members ORDER BY sort_order`,
     sql`SELECT * FROM site_stats ORDER BY sort_order`,
     sql`SELECT * FROM site_content WHERE section = 'about_philosophy'`,
+    sql`SELECT value FROM site_settings WHERE key = 'image_header_about'`,
   ]);
 
   return (
     <>
       <Navbar />
-      <PageHeader title="Our Story" subtitle="The heart behind the lens." />
+      <PageHeader title="Our Story" subtitle="The heart behind the lens." imageUrl={headerImg[0]?.value || undefined} />
       <AboutClient
         sections={sections as AboutSection[]}
         team={team as TeamMember[]}

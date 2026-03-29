@@ -1,17 +1,18 @@
 import sql from "@/lib/db";
-import type { HeroSlide, SiteStat, Testimonial } from "@/types";
+import type { HeroSlide, SiteStat, Testimonial, PortfolioItem } from "@/types";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import HomeClient from "@/components/home-client";
 
 export default async function Home() {
-  const [heroSlides, stats, testimonials, storyContent, settings] =
+  const [heroSlides, stats, testimonials, storyContent, settings, featuredPhotos] =
     await Promise.all([
       sql`SELECT * FROM hero_slides WHERE is_active = true ORDER BY sort_order`,
       sql`SELECT * FROM site_stats ORDER BY sort_order`,
       sql`SELECT * FROM testimonials ORDER BY sort_order`,
       sql`SELECT * FROM site_content WHERE section IN ('home_story_title', 'home_story')`,
       sql`SELECT key, value FROM site_settings`,
+      sql`SELECT pi.*, pc.name as category_name FROM portfolio_items pi LEFT JOIN portfolio_categories pc ON pi.category_id = pc.id WHERE pi.is_featured = true ORDER BY pi.sort_order LIMIT 6`,
     ]);
 
   const settingsMap: Record<string, string> = {};
@@ -36,6 +37,8 @@ export default async function Home() {
         storyBody={storyBody}
         showreelUrl={settingsMap.showreel_url || ""}
         showShowreel={settingsMap.show_showreel === "true"}
+        featuredPhotos={featuredPhotos as PortfolioItem[]}
+        siteImages={settingsMap}
       />
       <Footer />
     </>

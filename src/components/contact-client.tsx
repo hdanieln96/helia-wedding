@@ -222,7 +222,7 @@ export default function ContactClient({ fields, packageNames, settings, socialLi
             className="space-y-8"
           >
             <div className="relative aspect-[4/3] overflow-hidden">
-              <Image src="/hero-placeholder.jpg" alt="Contact" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+              <Image src={settings.image_contact || "/hero-placeholder.jpg"} alt="Contact" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
               <div className="absolute inset-4 border border-gold/20 pointer-events-none" />
             </div>
 
