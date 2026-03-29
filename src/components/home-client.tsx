@@ -133,7 +133,7 @@ export default function HomeClient({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
-          className="absolute bottom-8 sm:bottom-28 left-1/2 -translate-x-1/2 z-10"
+          className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10 hidden sm:block"
         >
           <motion.div
             animate={{ y: [0, 6, 0] }}
