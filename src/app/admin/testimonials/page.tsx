@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import StarRating from "@/components/star-rating";
 import { addTestimonial, updateTestimonial, deleteTestimonial } from "@/lib/actions/testimonials";
 import { deleteReview } from "@/lib/actions/reviews";
+import { uploadAdminImage } from "@/lib/admin-upload";
 
 interface TestimonialData {
   id: number;
@@ -53,14 +55,17 @@ export default function AdminTestimonialsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingPhoto(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("folder", "helia-wedding/testimonials");
-    const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-    const { url, publicId } = await res.json();
-    setImageUrl(url);
-    setCloudinaryId(publicId);
-    setUploadingPhoto(false);
+    try {
+      const { url, publicId } = await uploadAdminImage(file, "helia-wedding/testimonials");
+      setImageUrl(url);
+      setCloudinaryId(publicId);
+      toast.success("Photo uploaded.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = "";
+    }
   }
 
   async function handleSaveTestimonial() {

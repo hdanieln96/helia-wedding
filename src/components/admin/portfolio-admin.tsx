@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { addPortfolioItem, deletePortfolioItem, toggleFeatured, updatePortfolioItem, addCategory } from "@/lib/actions/portfolio";
+import { uploadAdminImage } from "@/lib/admin-upload";
 
 interface PortfolioAdminProps {
   items: Array<{
@@ -35,18 +37,23 @@ export default function PortfolioAdmin({ items, categories }: PortfolioAdminProp
     if (!files) return;
 
     setUploading(true);
-    for (let i = 0; i < files.length; i++) {
-      const formData = new FormData();
-      formData.append("file", files[i]);
-      formData.append("folder", "helia-wedding/portfolio");
-
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      const { url, publicId, width, height } = await res.json();
-      await addPortfolioItem(url, publicId, width, height, selectedCategory, title);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const { url, publicId, width, height } = await uploadAdminImage(
+          files[i],
+          "helia-wedding/portfolio"
+        );
+        await addPortfolioItem(url, publicId, width ?? 0, height ?? 0, selectedCategory, title);
+      }
+      setTitle("");
+      router.refresh();
+      toast.success(files.length === 1 ? "Photo uploaded." : "Photos uploaded.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
     }
-    setTitle("");
-    setUploading(false);
-    router.refresh();
   }
 
   async function handleDelete(item: { id: number; cloudinary_id: string }) {

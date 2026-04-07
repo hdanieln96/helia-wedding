@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { addHeroSlide, deleteHeroSlide, toggleHeroSlide, updateHeroMobileImage } from "@/lib/actions/hero";
+import { uploadAdminImage } from "@/lib/admin-upload";
 
 interface Slide {
   id: number;
@@ -34,11 +36,7 @@ export default function AdminHeroPage() {
   }
 
   async function uploadToCloudinary(file: File, folder: string) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("folder", folder);
-    const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-    return res.json();
+    return uploadAdminImage(file, folder);
   }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -46,11 +44,18 @@ export default function AdminHeroPage() {
     if (!file) return;
 
     setUploading(true);
-    const { url, publicId } = await uploadToCloudinary(file, "helia-wedding/hero");
-    await addHeroSlide(url, publicId, altText || "Hero slide");
-    setAltText("");
-    await fetchSlides();
-    setUploading(false);
+    try {
+      const { url, publicId } = await uploadToCloudinary(file, "helia-wedding/hero");
+      await addHeroSlide(url, publicId, altText || "Hero slide");
+      setAltText("");
+      await fetchSlides();
+      toast.success("Hero image uploaded.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   }
 
   async function handleMobileUpload(e: React.ChangeEvent<HTMLInputElement>, slideId: number) {
@@ -58,10 +63,17 @@ export default function AdminHeroPage() {
     if (!file) return;
 
     setUploadingMobileFor(slideId);
-    const { url, publicId } = await uploadToCloudinary(file, "helia-wedding/hero/mobile");
-    await updateHeroMobileImage(slideId, url, publicId);
-    await fetchSlides();
-    setUploadingMobileFor(null);
+    try {
+      const { url, publicId } = await uploadToCloudinary(file, "helia-wedding/hero/mobile");
+      await updateHeroMobileImage(slideId, url, publicId);
+      await fetchSlides();
+      toast.success("Mobile hero image uploaded.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setUploadingMobileFor(null);
+      e.target.value = "";
+    }
   }
 
   async function handleDelete(slide: Slide) {

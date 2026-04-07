@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { updateSettings } from "@/lib/actions/settings";
 import { updateSocialLink } from "@/lib/actions/social";
+import { uploadAdminImage } from "@/lib/admin-upload";
 
 interface SocialLinkData {
   id: number;
@@ -216,15 +218,18 @@ export default function AdminSettingsPage() {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       setUploadingImage(img.key);
-                      const formData = new FormData();
-                      formData.append("file", file);
-                      formData.append("folder", "helia-wedding/site");
-                      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-                      const { url } = await res.json();
-                      const updated = { ...settings, [img.key]: url };
-                      setSettings(updated);
-                      await updateSettings({ [img.key]: url });
-                      setUploadingImage(null);
+                      try {
+                        const { url } = await uploadAdminImage(file, "helia-wedding/site");
+                        const updated = { ...settings, [img.key]: url };
+                        setSettings(updated);
+                        await updateSettings({ [img.key]: url });
+                        toast.success(`${img.label} updated.`);
+                      } catch (error) {
+                        toast.error(error instanceof Error ? error.message : "Upload failed.");
+                      } finally {
+                        setUploadingImage(null);
+                        e.target.value = "";
+                      }
                     }}
                   />
                   <span className={`text-xs px-3 py-1.5 border border-gray-200 hover:border-gold/50 transition-colors ${uploadingImage === img.key ? "opacity-50" : "cursor-pointer"}`}>
